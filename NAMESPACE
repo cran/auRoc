@@ -1,0 +1,9 @@
+export(auc.para.bayes, auc.para.frequentist, auc.nonpara.mw, auc.nonpara.kernel)
+
+import(rjags)
+import(ProbYX)
+importFrom("coda", mcmc)
+importFrom("coda", HPDinterval)
+importFrom("MBESS", conf.limits.nct)
+importFrom("stats", "bw.SJ", "bw.nrd0", "density", "pnorm", "qnorm",
+"qt", "quantile", "update", "var")
