@@ -46,6 +46,7 @@
   DOI: 10.1177/0962280215602040
 
 } 
+\author{Dai Feng}
 \examples{
 
   #Example 1

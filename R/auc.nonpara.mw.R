@@ -255,8 +255,94 @@ auc.mw.boot <- function(x, y, alpha, nboot=1000, method){
     }
 }
 
+#-----------------------------------------------------------------------------------------------
+
+sample_shift <- function(x,y, alpha = 0.05){
+    nx <- length(x)
+    ny <- length(y)
+    y_step <- y
+    x_sort <- sort(x, decreasing = TRUE)
+    s <- Sys.time()
+    
+    while(TRUE){
+        # we calculate how much should we reduce the values of Y so that
+        # hat.theta changes.
+        step <- min(sapply(y_step, function(yi)
+            ifelse( length(x[x<yi])>0, yi - max(x[x<yi]), Inf)))
+        if(step == Inf){break}
+        y_step <- y_step - step
+        
+        # calculate P(hat.theta=1)
+        denominator <- nx^nx * ny^ny
+        numerator <- 0
+        
+        x_komb <- NA
+        y_komb <- NA
+        
+        for(i in 1:length(x_sort)){
+            x_komb <- (nx-i+1)^nx - (nx-i)^nx
+            
+            sty <- sum(y_step > x_sort[i])
+            y_komb <- sty^ny
+            
+            numerator <- numerator + x_komb*y_komb
+        }
+        p.hat.theta1 <- numerator/denominator
+        
+        if(p.hat.theta1 <= alpha){
+            return(getAUCmw(y_step,x)) # calculate hat.theta on (x, y_step)
+            # using an implemented function.
+        }
+        if(Sys.time() - s > 100){
+            warning("While loop lasts more than 100 seconds.")
+            return(c(1))
+        }
+    }
+}
+
+
+auc.mw.DL.corr <- function (x, y, alpha = 0.05){
+    
+    if((max(y) < min(x)) | (max(x) < min(y))){
+        
+        hat.theta <- getAUCmw(y, x)
+        
+        if(hat.theta == 1){
+            c(0,0, sample_shift(x,y))
+        }
+        else{
+            c(1, sample_shift(y,x), 1)
+        }
+    }
+    else{
+        # the following code is based on functions from the package auRoc
+        # for calculating CI.
+        point <- getAUCmw(x, y)
+        nx <- length(x)
+        ny <- length(y)
+        zalpha <- qnorm(1 - alpha/2)
+        D10 <- sapply(1:ny, function(i) mean(ifelse(x > y[i], 1,
+                                                    ifelse(x == y[i], 1/2, 0))))
+        D01 <- sapply(1:nx, function(i) mean(ifelse(x[i] > y, 1,
+                                                    ifelse(x[i] == y, 1/2, 0))))
+        v1 <- 1/(ny - 1) * sum((D10 - point)^2)
+        v2 <- 1/(nx - 1) * sum((D01 - point)^2)
+        
+        varDhatTheta <- v1*(nx-1)/(nx*ny) + v2*(ny-1)/(nx*ny) + point*(1-point)/(nx*ny)
+        LL <- log(point/(1 - point)) - zalpha * sqrt(varDhatTheta)/(point *
+                                                                        (1 - point))
+        UL <- log(point/(1 - point)) + zalpha * sqrt(varDhatTheta)/(point *
+                                                                        (1 - point))
+        ci <- c(exp(LL)/(1 + exp(LL)), exp(UL)/(1 + exp(UL)))
+        c(point, ci)
+    }
+}
+
+
+
 auc.nonpara.mw <- function(x, y, conf.level=0.95, 
-                           method=c("newcombe", "pepe", "delong", "jackknife", "bootstrapP", "bootstrapBCa"), 
+                           method=c("newcombe", "pepe", "delong", "DL.corr", 
+                                    "jackknife", "bootstrapP", "bootstrapBCa"), 
                            nboot){
 
     alpha <- 1 - conf.level
@@ -265,6 +351,7 @@ auc.nonpara.mw <- function(x, y, conf.level=0.95,
                        newcombe=auc.mw.newcombe(x, y, alpha),
                        pepe=auc.mw.pepe(x, y, alpha),
                        delong=auc.mw.delong(x, y, alpha),
+                       DL.corr=auc.mw.DL.corr(x, y, alpha),
                        jackknife=auc.mw.jackknife(x, y, alpha),
                        bootstrapP=auc.mw.boot(x, y, alpha, nboot, method="P"),
                        bootstrapBCa=auc.mw.boot(x, y, alpha, nboot, method="BCa"))

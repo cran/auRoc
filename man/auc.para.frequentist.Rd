@@ -64,6 +64,7 @@
   
 
 } 
+\author{Dai Feng}
 \examples{
 
   #Example 1

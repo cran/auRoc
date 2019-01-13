@@ -66,6 +66,7 @@
   \bold{53} 683-690
   
 } 
+\author{Dai Feng}
 \examples{
 
   #Example 1
