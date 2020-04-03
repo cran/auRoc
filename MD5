@@ -1,9 +1,10 @@
-6f35fa31579bbaa51960237b8561c466 *DESCRIPTION
+9eb7f68cf3137e9370bdffd062069bec *DESCRIPTION
 afa892804b0d8c9e7222ac27aaa23959 *NAMESPACE
 915af25abe61508af4b191bb62d267ff *R/auc.nonpara.kernel.R
 e27660894768279f6bc44cef0c023c7a *R/auc.nonpara.mw.R
-479b0a00bb9f2cbcf5130016be09c388 *R/auc.para.bayes.R
+ea16a6eb6ce0e9386ba82dcd68db1392 *R/auc.para.bayes.R
 9eeacb2e72fdc0a0bb37997a27523798 *R/auc.para.frequentist.R
+6dc37b05ff394dfc3d5a34a71a8d0213 *data/petBrainGlioma.R
 c7fa5dd21ad3b4644ed0f43dc7627c5a *data/petBrainGlioma.rda
 41af276c1dea51387ed2468ee06b63c8 *man/auc.nonpara.kernel.Rd
 f554447f9bf4271839730f5c8765bac1 *man/auc.nonpara.mw.Rd
